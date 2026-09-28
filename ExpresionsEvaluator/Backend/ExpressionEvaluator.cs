@@ -5,45 +5,66 @@ namespace Backend;
 
 public static class ExpressionEvaluator
 {
+    private static string posFix;
+
     public static double Evalute(string infix)
     {
         var postfix = ToPostfix(infix);
+        
         return EvalutePostfix(postfix);
     }
 
     private static string ToPostfix(string infix)
+
     {
+
         var posfix = string.Empty;
         var stack = new Stack<char>();
         foreach (var item in posfix)
         {
             if (IsOperator(item))
             {
-
-                if (stack.Count == 0)
+                if (item == ')')
                 {
-                    stack.Push(item);
+
+                    var ope = stack.Pop();
+                    while (ope != '(')
+                    {
+                        posfix += ope;
+                        ope = stack.Pop();
+                    }
                 }
                 else
-                {
-                    if (PriorityInfix(item) > PriorityStack(stack.Peek()))
+                    if (stack.Count == 0)
                     {
                         stack.Push(item);
                     }
                     else
                     {
-                       posfix += stack.Pop();
+                        if (PriorityInfix(item) > PriorityStack(stack.Peek()))
+                        {
+                            stack.Push(item); // enter 
+                        }
+                        else
+                        {
+                            posfix += stack.Pop(); // exit and enter 
+                        }
                     }
-                }    
             }
+
             else
             {
                 posfix += item;
             }
-
+            do
+            {
+                posfix += stack.Pop();
+                while (stack.Count != 0) ;
+            } while (stack.Count != 0);
+            return posfix;
         }
-         return posfix; 
     }
+
     private static int PriorityStack(Char op) => op switch
     {
             '^' => 3,
